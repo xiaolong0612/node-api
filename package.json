@@ -1,5 +1,58 @@
 {
+  "name": "node-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "dependencies": {
-    "express": "^4.16.4"
-  }
+    "body-parser": "^1.18.3",
+    "bytes": "^3.0.0",
+    "content-disposition": "^0.5.2",
+    "cookie-signature": "^1.1.0",
+    "debug": "^4.1.0",
+    "destroy": "^1.0.4",
+    "ee-first": "^1.1.1",
+    "encodeurl": "^1.0.2",
+    "escape-html": "^1.0.3",
+    "etag": "^1.8.1",
+    "express": "^4.16.4",
+    "fresh": "^0.5.2",
+    "http-errors": "^1.7.1",
+    "isarray": "^2.0.4",
+    "media-typer": "^1.0.1",
+    "mime": "^2.3.1",
+    "mime-types": "^2.1.21",
+    "mysql": "^2.16.0",
+    "on-finished": "^2.3.0",
+    "parseurl": "^1.3.2",
+    "path-to-regexp": "^2.4.0",
+    "process-nextick-args": "^2.0.0",
+    "proxy-addr": "^2.0.4",
+    "qs": "^6.5.2",
+    "range-parser": "^1.2.0",
+    "raw-body": "^2.3.3",
+    "readable-stream": "^3.0.6",
+    "safe-buffer": "^5.1.2",
+    "safer-buffer": "^2.1.2",
+    "serve-static": "^1.13.2",
+    "sqlstring": "^2.3.1",
+    "unpipe": "^1.0.0",
+    "vary": "^1.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaolong0612/node-api.git"
+  },
+  "keywords": [
+    "zxl19960612"
+  ],
+  "author": "xiaolongjun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiaolong0612/node-api/issues"
+  },
+  "homepage": "https://github.com/xiaolong0612/node-api#readme"
 }

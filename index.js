@@ -1,7 +1,24 @@
-const http = require('http');
-const nUrl = require('url');
-const util = require('util');
-const querystring = require('querystring');
+const express = require('express');
+const app = express();
+//解析表单的插件
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
+app.all("*",function(req,res,next){
+    //设置允许跨域的域名，*代表允许任意域名跨域
+    res.header("Access-Control-Allow-Origin","*");
+    //允许的header类型
+    res.header("Access-Control-Allow-Headers","content-type");
+    //跨域允许的请求方式 
+    res.header("Access-Control-Allow-Methods","DELETE,PUT,POST,GET,OPTIONS");
+    if (req.method.toLowerCase() == 'options')
+        res.send(200);  //让options尝试请求快速结束
+    else
+        next();
+})
+ 
+
 const config = require('./config');
 const controller = require('./controller');
 const route = require('./route').map(item => {
@@ -10,39 +27,18 @@ const route = require('./route').map(item => {
     item.impl = controller[tuple[0]][tuple[1]];
     return item;
 });
-const server = http.createServer((req, res) => {
-    let url = {};
-    let method = req.method;
-    if(method == 'GET') {
-        console.log('get')
-        url = util.inspect(nUrl.parse(req.url,true))
-    } else {
-        console.log("post")
-        // 注册data事件接收数据（每当收到一段表单提交的数据，该方法会执行一次）
-        req.on('data', function (chunk) {
-            // chunk 默认是一个二进制数据，和 data 拼接会自动 toString
-            url += chunk;
-        });
-        req.on('end', function () {
-            // 解析参数
-            url = querystring.parse(url);  //将一个字符串反序列化为一个对象
-            console.log(url.sex);
-        });
-    }
+route.find(item => {
+   app[item.method](item.path, (req, res) => {
+        if(item){
+            item.impl(req, res);
+            return;
+        }
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Not Found');
+   }) 
+})
 
-    let matchRoute = route.find(item => {
-        return item.method === method && item.path === url.pathname;
-    });
-
-    if (matchRoute) {
-        matchRoute.impl(req, res);
-        return;
-    }
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Not Found');
-});
-
-server.listen(config.port, config.hostname, () => {
+app.listen(config.port, config.hostname, () => {
     console.log(`Server running at http://${config.hostname}:${config.port}/`);
 });
