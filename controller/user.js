@@ -1,9 +1,12 @@
 var user = require('./userModal.js');
+var token = require('../utils/token.js');
+var utils = require('../utils/index.js');
 
 exports.register = function(req, res){
     user.register(req, res, function(err, results){
         if (err) return res.json({
             code: 1,
+            success: false,
             message: err,
         })
         res.json({
@@ -15,14 +18,31 @@ exports.register = function(req, res){
 }
 
 exports.login = function(req, res){
+    console.log(req)
     user.login(req, function(err, results){
         if (err) return res.json({
             code: 1,
             message: err,
         })
+        if(results.length <= 0){
+            return res.json({
+                code: 200,
+                success: false,
+                message: '账号或密码错误',
+            })
+        }
+        delete results[0].password;
+
         res.json({
-            code: 0,
-            message: '添加成功',
+            code: 200,
+            success: true,
+            message: '登陆成功',
+            data: results[0],
+            token: token.setToken({
+                account: req.body.account,
+                password: req.body.password,
+                over: new Date().utils.formatdate('yy-mm-dd')
+            })
         })
     })
 }

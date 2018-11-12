@@ -13,19 +13,25 @@ function setMd5(str, count){
 
 module.exports = {
   register: function (req, res, callback) {
+    const query = req.body;
     this.validateAccount(req, function(err, results){
-      if(results.length > 0){
+      if(!query.user_name || query.user_name == ''){
         res.json({
             code: 0,
+            success: false,
+            message: '请填写用户名',
+        })
+      }else if(results.length > 0){
+        res.json({
+            code: 0,
+            success: false,
             message: '该账号已存在，请重新填写',
         })
       }else {
-        const query = req.body;
         const sqlStr = 'INSERT INTO USER_LIST(account, password, user_name, sex, age, birthday) VALUES(?,?,?,?,?,?)';
 
         query.password = setMd5(query.password);
-        var user = [query.account, query.password, query.user_name, query.sex || '', query.age || '', query.birthday || ''];
-        console.log(user)
+        var user = [query.account, query.password, query.user_name, query.sex || null, query.age || null, query.birthday || null];
         sqlPool.connect(sqlStr, user, callback);
       }
     });
@@ -37,7 +43,7 @@ module.exports = {
   },
   login: function (req, callback) {
     const query = req.body;
-    let sqlStr = 'SELECT COUNT(*) FROM USER_LIST WHERE account=? and password=?';
+    let sqlStr = 'SELECT * FROM USER_LIST WHERE account=? and password=?';
 
     query.password = setMd5(query.password);
     var value = [query.account, query.password];

@@ -7,7 +7,7 @@ const payload = {
 }
 
 // 密钥
-const secret = 'ILOVENINGHAO'
+const secret = 'XIAOLONGJUN'
 
 // 签发 Token
 const token = jwt.sign(payload, secret, { expiresIn: '1day' })
