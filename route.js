@@ -1,26 +1,32 @@
 exports = module.exports = [
 	{
+		// 用户注册
+		method: 'post',
+    path: '/api/register',
+    impl: 'user.register'
+	},
+	{
+		// 用户登陆
+		method: 'post',
+    path: '/api/login',
+    impl: 'user.login'
+	},
+	{
 		// 获取列表
     method: 'post',
     path: '/api/userlist',
-    impl: 'account.list'
-	},
-	{
-		// 添加user
-		method: 'post',
-    path: '/api/adduser',
-    impl: 'account.add'
+    impl: 'user.list'
 	},
 	{
 		// 删除user
 		method: 'post',
     path: '/api/deluser',
-    impl: 'account.del'
+    impl: 'user.del'
 	},
 	{
 		// 修改user
 		method: 'post',
     path: '/api/updateuser',
-    impl: 'account.update'
+    impl: 'user.update'
 	}
 ];

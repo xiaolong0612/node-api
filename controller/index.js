@@ -1,1 +1,1 @@
-exports.account = require('./user')
+exports.user = require('./user')

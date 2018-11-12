@@ -1,8 +1,48 @@
 const mysql = require('mysql');
 const sqlPoolObj = require('../utils/SQLcool.js');
 const sqlPool = sqlPoolObj.sqlpool();
- 
+var md5 = require('md5-node');
+// 加密处理，多次加密不容易被破解
+function setMd5(str, count){
+  count = typeof count == 'undefined' ? 3 : count;
+  for(let i=0; i<count; i++){
+    str = md5(str);
+  }
+  return str
+}
+
 module.exports = {
+  register: function (req, res, callback) {
+    this.validateAccount(req, function(err, results){
+      if(results.length > 0){
+        res.json({
+            code: 0,
+            message: '该账号已存在，请重新填写',
+        })
+      }else {
+        const query = req.body;
+        const sqlStr = 'INSERT INTO USER_LIST(account, password, user_name, sex, age, birthday) VALUES(?,?,?,?,?,?)';
+
+        query.password = setMd5(query.password);
+        var user = [query.account, query.password, query.user_name, query.sex || '', query.age || '', query.birthday || ''];
+        console.log(user)
+        sqlPool.connect(sqlStr, user, callback);
+      }
+    });
+  },
+  validateAccount: function (req, callback){
+    const query = req.body;
+    var sqlUserList = "SELECT * FROM USER_LIST where 1=1 and account=?";
+    sqlPool.connect(sqlUserList, [query.account], callback)
+  },
+  login: function (req, callback) {
+    const query = req.body;
+    let sqlStr = 'SELECT COUNT(*) FROM USER_LIST WHERE account=? and password=?';
+
+    query.password = setMd5(query.password);
+    var value = [query.account, query.password];
+    sqlPool.connect(sqlStr, value, callback);
+  },
   list: function (req, callback) {
   	const query = req.body;
     let sqlStr = 'SELECT COUNT(*) FROM USER_LIST;';
@@ -10,7 +50,7 @@ module.exports = {
     sqlStr += "SELECT * FROM USER_LIST where 1=1";
     let user = [];
     if(query.user_name && query.user_name != ''){
-    	query.user_name = "%"+query.user_name+"%";
+      query.user_name = "%"+query.user_name+"%";
       sqlStr += " and user_name like ?";
       user.push(query.user_name);
     }
@@ -35,7 +75,7 @@ module.exports = {
   },
   add: function (req, callback) {
   	const query = req.body;
-  	const sqlStr = 'INSERT INTO USER_LIST(user_name, sex, age, birthday) VALUES(?,?,?,?)';
+  	const sqlStr = 'INSERT INTO USER_LIST( user_name, sex, age, birthday) VALUES(?,?,?,?)';
   	var user = [query.user_name, query.sex, query.age, query.birthday];
 
   	sqlPool.connect(sqlStr, user, callback);
