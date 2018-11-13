@@ -1,11 +1,5 @@
 const jwt = require('jsonwebtoken')
-
-/**
- * 密匙
- * @type {String}
- */
-const secret = 'XIAOLONGJUN'
-
+const fs = require('fs')
 /**
  * @Author    xiaolongjun
  * @DateTime  2018-11-13
@@ -16,17 +10,22 @@ const secret = 'XIAOLONGJUN'
  * 	password:
  * }
  */
+ // 获取签发 JWT 时需要用的密钥
+const privateKey = fs.readFileSync('./config/private.key')
 module.exports = {
 	setToken: function (userinfo) {
-		return jwt.sign(userinfo, secret, { expiresIn: '1day' })
+		return jwt.sign(userinfo, privateKey, { expiresIn: 60 * 60 * 24 })
 	},
-	getToken: function (token) {
-		jwt.verify(token, secret, (error, decoded) => {
+	validateToken: function (token) {
+		jwt.verify(token, privateKey, (error, decoded) => {
 		  if (error) {
 		    console.log(error.message)
-		    return
+		    return {success: false}
 		  }
-		  return decoded
+		  return {
+		  	user: decoded,
+		  	success: true
+		  }	
 		})
 	}
 }
