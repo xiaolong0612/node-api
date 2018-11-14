@@ -12,6 +12,12 @@ exports = module.exports = [
     impl: 'user.login'
 	},
 	{
+		// 用户信息
+		method: 'post',
+    path: '/api/userinfo',
+    impl: 'user.getUserInfo'
+	},
+	{
 		// 获取列表
     method: 'post',
     path: '/api/userlist',

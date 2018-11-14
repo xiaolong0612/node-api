@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const sqlPoolObj = require('../utils/SQLcool.js');
 const sqlPool = sqlPoolObj.sqlpool();
+var token = require('../utils/token.js');
 var md5 = require('md5-node');
 // 加密处理，多次加密不容易被破解
 function setMd5(str, count){
@@ -44,10 +45,14 @@ module.exports = {
   login: function (req, callback) {
     const query = req.body;
     let sqlStr = 'SELECT * FROM USER_LIST WHERE account=? and password=?';
-
     query.password = setMd5(query.password);
     var value = [query.account, query.password];
     sqlPool.connect(sqlStr, value, callback);
+  },
+  info: function (req, callback){
+    console.log(req.headers)
+    var sqlInfo = "SELECT * FROM USER_LIST where id=?";
+    sqlPool.connect(sqlInfo, [1], callback);
   },
   list: function (req, callback) {
   	const query = req.body;

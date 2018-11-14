@@ -36,8 +36,8 @@ exports.login = function(req, res){
             code: 200,
             success: true,
             message: '登陆成功',
-            data: {id: results[0].id},
             token: token.setToken({
+                id: results[0].id,
                 account: req.body.account,
                 password: req.body.password,
             })
@@ -57,11 +57,7 @@ exports.getUserInfo = function(req, res){
             code: 200,
             success: true,
             message: '用户信息获取成功',
-            data: {id: results[0].id},
-            token: token.setToken({
-                account: req.body.account,
-                password: req.body.password,
-            })
+            data: {id: results[0].id}
         })
     })
 }
