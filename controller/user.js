@@ -18,10 +18,10 @@ exports.register = function(req, res){
 }
 
 exports.login = function(req, res){
-    console.log(req)
     user.login(req, function(err, results){
         if (err) return res.json({
             code: 1,
+            success: false,
             message: err,
         })
         if(results.length <= 0){
@@ -31,22 +31,40 @@ exports.login = function(req, res){
                 message: '账号或密码错误',
             })
         }
-        delete results[0].password;
 
         res.json({
             code: 200,
             success: true,
             message: '登陆成功',
-            data: results[0],
+            data: {id: results[0].id},
             token: token.setToken({
                 account: req.body.account,
                 password: req.body.password,
-                over: new Date().utils.formatdate('yy-mm-dd')
             })
         })
     })
 }
 
+exports.getUserInfo = function(req, res){
+    user.info(req, function(err, results){
+        if (err) return res.json({
+            code: 1,
+            success: false,
+            message: err,
+        })
+        delete results[0].password
+        res.json({
+            code: 200,
+            success: true,
+            message: '用户信息获取成功',
+            data: {id: results[0].id},
+            token: token.setToken({
+                account: req.body.account,
+                password: req.body.password,
+            })
+        })
+    })
+}
 exports.list = function(req, res){
     user.list(req, function(err, results){
         var data = req.body;
