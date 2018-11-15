@@ -31,7 +31,6 @@ const user = {
       return new Promise((resolve, reject) => {
         login(user_name, userInfo.password).then(response => {
           const data = response.data
-          console.log(data)
           setToken(data.token)
           commit('SET_TOKEN', data.token)
           resolve()
@@ -45,14 +44,13 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          const data = response.data
+          const data = response.data.data
           if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', data.roles)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
+          commit('SET_NAME', data.user_name)
           resolve(response)
         }).catch(error => {
           reject(error)

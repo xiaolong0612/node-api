@@ -49,10 +49,19 @@ module.exports = {
     var value = [query.account, query.password];
     sqlPool.connect(sqlStr, value, callback);
   },
-  info: function (req, callback){
-    console.log(req.headers)
-    var sqlInfo = "SELECT * FROM USER_LIST where id=?";
-    sqlPool.connect(sqlInfo, [1], callback);
+  info: function (req,res, callback){
+    token.getToken(req.headers.authorization, function(rs){
+      if(rs.success){
+        var sqlInfo = "SELECT * FROM USER_LIST where account=?";
+       sqlPool.connect(sqlInfo, rs.user.account, callback);
+      }else{
+        res.json({
+          code:1,
+          success: false,
+          message: '请重新登录'
+        })
+      }
+    })
   },
   list: function (req, callback) {
   	const query = req.body;

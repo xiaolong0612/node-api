@@ -46,18 +46,19 @@ exports.login = function(req, res){
 }
 
 exports.getUserInfo = function(req, res){
-    user.info(req, function(err, results){
+    user.info(req, res,function(err, results){
         if (err) return res.json({
             code: 1,
             success: false,
             message: err,
         })
-        delete results[0].password
+        delete results[0].password;
+        results[0].roles = results[0].roles.split(',');
         res.json({
             code: 200,
             success: true,
             message: '用户信息获取成功',
-            data: {id: results[0].id}
+            data: results[0]
         })
     })
 }

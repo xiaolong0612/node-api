@@ -16,16 +16,14 @@ module.exports = {
 	setToken: function (userinfo) {
 		return jwt.sign(userinfo, privateKey, { expiresIn: 60 * 60 * 24 })
 	},
-	validateToken: function (token) {
+	getToken: function (token, callback) {
 		jwt.verify(token, privateKey, (error, decoded) => {
 		  if (error) {
 		    console.log(error.message)
-		    return {success: false}
+		    if(typeof callback == 'function') callback({success:false})
+		    return
 		  }
-		  return {
-		  	user: decoded,
-		  	success: true
-		  }	
+		  if(typeof callback == 'function') callback({user: decoded,success:true})
 		})
 	}
 }
