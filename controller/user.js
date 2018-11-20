@@ -1,8 +1,8 @@
-var user = require('./userModal.js');
-var token = require('../utils/token.js');
-var utils = require('../utils/index.js');
+import { parseTime, dateDiff } from '@/utils/index.js';
+const token = require('@/utils/token.js');
+const user = require('./userModal.js');
 
-exports.register = function(req, res){
+export function register(req, res){
     user.register(req, res, function(err, results){
         if (err) return res.json({
             code: 1,
@@ -17,7 +17,7 @@ exports.register = function(req, res){
     })
 }
 
-exports.login = function(req, res){
+export function login(req, res){
     user.login(req, function(err, results){
         if (err) return res.json({
             code: 1,
@@ -40,29 +40,55 @@ exports.login = function(req, res){
                 id: results[0].id,
                 account: req.body.account,
                 password: req.body.password,
+                time: parseTime(new Date())
             })
         })
     })
 }
 
-exports.getUserInfo = function(req, res){
-    user.info(req, res,function(err, results){
-        if (err) return res.json({
-            code: 1,
-            success: false,
-            message: err,
-        })
-        delete results[0].password;
-        results[0].roles = results[0].roles.split(',');
-        res.json({
-            code: 200,
-            success: true,
-            message: '用户信息获取成功',
-            data: results[0]
-        })
+export function getUserInfo(req, res){
+    token.getToken(req.headers.authorization, function(rs){
+        if(rs.success){
+            let begintime = new Date(rs.user.time);
+            let nowtime = new Date()
+            let difftime = dateDiff(nowtime, begintime)
+            user.info(req, rs.user.account, function(err, results){
+                if (err) return res.json({
+                    code: 1,
+                    success: false,
+                    message: err,
+                })
+                delete results[0].password;
+                results[0].roles = results[0].roles.split(',');
+                // 与上次保存token相差时间在23到24之间更新token，预防使用中重新登陆，体验不好
+                let tokentext = ''
+                if(difftime > 23 && difftime <=24){
+                    tokentext = token.setToken({
+                        id: results[0].id,
+                        account: req.body.account,
+                        password: req.body.password,
+                        time: parseTime(new Date())
+                    })
+                }
+                res.json({
+                    code: 200,
+                    success: true,
+                    message: '用户信息获取成功',
+                    data: results[0],
+                    token: tokentext
+                })   
+            })
+            
+        }else{
+            res.json({
+                code: -1,
+                success: false,
+                message: '请重新登陆',
+            })
+        }
     })
 }
-exports.list = function(req, res){
+export function list(req, res){
     user.list(req, function(err, results){
         var data = req.body;
         if (err) return res.json({
@@ -81,7 +107,7 @@ exports.list = function(req, res){
     })
 }
 
-exports.add = function(req, res){
+export function add(req, res){
     user.add(req, function(err, results){
         if (err) return res.json({
             err_code: 1,
@@ -94,7 +120,7 @@ exports.add = function(req, res){
     })
 }
 
-exports.del = function(req, res){
+export function del(req, res){
     user.del(req, function(err, results){
         if (err) return res.json({
             code: 1,
@@ -107,7 +133,7 @@ exports.del = function(req, res){
     })
 }
 
-exports.update = function(req, res){
+export function update(req, res){
     user.update(req, function(err, results){
         if (err) return res.json({
             code: 1,
@@ -116,7 +142,6 @@ exports.update = function(req, res){
         res.json({
             code: 0,
             message: '编辑成功',
-            // affectedRows: results.affectedRows
         })
     })
 }

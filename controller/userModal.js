@@ -1,7 +1,7 @@
 const mysql = require('mysql');
-const sqlPoolObj = require('../utils/SQLcool.js');
+const sqlPoolObj = require('@/utils/SQLcool.js');
 const sqlPool = sqlPoolObj.sqlpool();
-var token = require('../utils/token.js');
+var token = require('@/utils/token.js');
 var md5 = require('md5-node');
 // 加密处理，多次加密不容易被破解
 function setMd5(str, count){
@@ -49,19 +49,9 @@ module.exports = {
     var value = [query.account, query.password];
     sqlPool.connect(sqlStr, value, callback);
   },
-  info: function (req,res, callback){
-    token.getToken(req.headers.authorization, function(rs){
-      if(rs.success){
-        var sqlInfo = "SELECT * FROM USER_LIST where account=?";
-       sqlPool.connect(sqlInfo, rs.user.account, callback);
-      }else{
-        res.json({
-          code:1,
-          success: false,
-          message: '请重新登录'
-        })
-      }
-    })
+  info: function (req, account, callback){
+    var sqlInfo = "SELECT * FROM USER_LIST where account=?";
+    sqlPool.connect(sqlInfo, account, callback);
   },
   list: function (req, callback) {
   	const query = req.body;
