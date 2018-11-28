@@ -18,13 +18,13 @@ module.exports = {
     this.validateAccount(req, function(err, results){
       if(!query.user_name || query.user_name == ''){
         res.json({
-            code: 0,
+            code: -1,
             success: false,
             message: '请填写用户名',
         })
       }else if(results.length > 0){
         res.json({
-            code: 0,
+            code: -1,
             success: false,
             message: '该账号已存在，请重新填写',
         })
@@ -92,13 +92,14 @@ module.exports = {
   },
   del: function (req, callback) {
   	const query = req.body;
+    console.log(query)
   	const sqlStr = 'DELETE FROM USER_LIST WHERE id = '+query.id;
   	sqlPool.connect(sqlStr, [], callback);
   },
-  update: function (req, callback) {
+  updata: function (req, callback) {
   	const query = req.body;
   	const sqlStr = 'UPDATE USER_LIST SET user_name=?, sex=?, age=?, birthday=? WHERE id = '+query.id;
-  	var user = [query.user_name, query.sex, query.age, query.birthday,query.id];
+  	var user = [query.user_name, query.sex, query.age, new Date(query.birthday), query.id];
   	sqlPool.connect(sqlStr, user, callback);
   }
 }

@@ -12,6 +12,12 @@ exports = module.exports = [
     impl: 'user.login'
 	},
 	{
+		// 用户登出
+		method: 'post',
+    path: '/api/logout',
+    impl: 'user.logout'
+	},
+	{
 		// 用户信息
 		method: 'post',
     path: '/api/userinfo',
@@ -32,7 +38,7 @@ exports = module.exports = [
 	{
 		// 修改user
 		method: 'post',
-    path: '/api/updateuser',
-    impl: 'user.update'
+    path: '/api/updatauser',
+    impl: 'user.updata'
 	}
 ];

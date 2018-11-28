@@ -5,7 +5,7 @@ const user = require('./userModal.js');
 export function register(req, res){
     user.register(req, res, function(err, results){
         if (err) return res.json({
-            code: 1,
+            code: -1,
             success: false,
             message: err,
         })
@@ -20,7 +20,7 @@ export function register(req, res){
 export function login(req, res){
     user.login(req, function(err, results){
         if (err) return res.json({
-            code: 1,
+            code: -1,
             success: false,
             message: err,
         })
@@ -46,6 +46,14 @@ export function login(req, res){
     })
 }
 
+export function logout(req, res){
+    res.json({
+        code: 200,
+        success: true,
+        message: '成功退出'
+    })
+}
+
 export function getUserInfo(req, res){
     token.getToken(req.headers.authorization, function(rs){
         if(rs.success){
@@ -54,14 +62,14 @@ export function getUserInfo(req, res){
             let difftime = dateDiff(nowtime, begintime)
             user.info(req, rs.user.account, function(err, results){
                 if (err) return res.json({
-                    code: 1,
+                    code: -1,
                     success: false,
                     message: err,
                 })
                 delete results[0].password;
                 results[0].roles = results[0].roles.split(',');
                 // 与上次保存token相差时间在23到24之间更新token，预防使用中重新登陆，体验不好
-                let tokentext = ''
+                let tokentext = '';
                 if(difftime > 23 && difftime <=24){
                     tokentext = token.setToken({
                         id: results[0].id,
@@ -92,10 +100,13 @@ export function list(req, res){
     user.list(req, function(err, results){
         var data = req.body;
         if (err) return res.json({
-            code: 1,
+            code: -1,
             success: false,
             message: '数据不存在',
         })
+        for(var i in results[1]){
+            results[1][i].birthday = parseTime(results[1][i].birthday, '{y}-{m}-{d}')
+        }
         res.json({
             code: 200,
             success: true,
@@ -110,11 +121,13 @@ export function list(req, res){
 export function add(req, res){
     user.add(req, function(err, results){
         if (err) return res.json({
-            err_code: 1,
+            err_code: -1,
+            success: false,
             message: err,
         })
         res.json({
-            err_code: 0,
+            err_code: 200,
+            success: true,
             message: '添加成功',
         })
     })
@@ -123,24 +136,28 @@ export function add(req, res){
 export function del(req, res){
     user.del(req, function(err, results){
         if (err) return res.json({
-            code: 1,
+            code: -1,
+            success: false,
             message: err,
         })
         res.json({
             code: 0,
+            success: true,
             message: '删除成功',
         })
     })
 }
 
-export function update(req, res){
-    user.update(req, function(err, results){
+export function updata(req, res){
+    user.updata(req, function(err, results){
         if (err) return res.json({
-            code: 1,
+            code: -1,
+            success: false,
             message: err,
         })
         res.json({
-            code: 0,
+            code: 200,
+            success: true,
             message: '编辑成功',
         })
     })
