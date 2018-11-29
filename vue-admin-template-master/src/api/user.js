@@ -7,6 +7,13 @@ export function getList(data) {
     data
   })
 }
+export function register(data) {
+  return request({
+    url: '/api/register',
+    method: 'post',
+    data
+  })
+}
 export function updata(data) {
   return request({
     url: '/api/updatauser',
