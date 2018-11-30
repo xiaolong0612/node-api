@@ -29,10 +29,12 @@ module.exports = {
             message: '该账号已存在，请重新填写',
         })
       }else {
-        const sqlStr = 'INSERT INTO USER_LIST(account, password, user_name, sex, age, birthday) VALUES(?,?,?,?,?,?)';
+        const sqlStr = 'INSERT INTO USER_LIST(account, password, user_name, sex, age, birthday, roles) VALUES(?,?,?,?,?,?,?)';
 
         query.password = setMd5(query.password);
-        var user = [query.account, query.password, query.user_name, query.sex || null, query.age || null, query.birthday || null];
+        var user = [query.account, query.password, query.user_name, query.sex || null, query.age || null, query.birthday || null, query.roles || 'admin'];
+        console.log(query)
+        console.log(user)
         sqlPool.connect(sqlStr, user, callback);
       }
     });

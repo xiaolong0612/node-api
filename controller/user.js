@@ -26,7 +26,7 @@ export function login(req, res){
         })
         if(results.length <= 0){
             return res.json({
-                code: 200,
+                code: -1,
                 success: false,
                 message: '账号或密码错误',
             })
@@ -89,7 +89,7 @@ export function getUserInfo(req, res){
             
         }else{
             res.json({
-                code: -1,
+                code: 50014,
                 success: false,
                 message: '请重新登陆',
             })

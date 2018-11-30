@@ -8,7 +8,7 @@
         <el-input v-model="query.age" placeholder="年龄" />
       </el-form-item>
       <el-form-item label="性别">
-        <el-select v-model="query.sex" placeholder="性别">
+        <el-select v-model="query.sex" clearable placeholder="性别">
           <el-option label="男" value="男"/>
           <el-option label="女" value="女"/>
         </el-select>
@@ -91,10 +91,10 @@
           <el-input v-model="newUser.account" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="newUser.password" />
+          <el-input v-model="newUser.password" type="password"/>
         </el-form-item>
-        <el-form-item label="密码" prop="checkPass">
-          <el-input v-model="newUser.checkPass" />
+        <el-form-item label="确认密码" prop="checkPass">
+          <el-input v-model="newUser.checkPass" type="password"/>
         </el-form-item>
         <el-form-item label="用户名称" prop="user_name">
           <el-input v-model="newUser.user_name" />
@@ -168,13 +168,13 @@ export default {
         birthday: ''
       },
       newUser: {
-        account: '',
-        password: '',
-        checkPass: '',
-        user_name: '',
-        sex: '',
-        age: '',
-        birthday: ''
+        account: 'xiaolong',
+        password: '123456',
+        checkPass: '123456',
+        user_name: 'xiaolongjun',
+        sex: '男',
+        age: '12',
+        birthday: '1997-06-12'
       },
       rules_for_newUser: {
         account: [
@@ -227,7 +227,7 @@ export default {
       this.$set(item, 'isEdit', true)
     },
     del(item) {
-      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除' + item.user_name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -271,11 +271,10 @@ export default {
     submit() {
       this.$refs['newUser'].validate((valid) => {
         if (valid) {
-          alert('submit!')
           register(this.newUser).then(rs => {
-          	if (rs.success) {
-							this.$message.success(rs.data.message)
-          	}
+            if (rs.success) {
+              this.$message.success(rs.data.message)
+            }
           })
         } else {
           console.log('error submit!!')

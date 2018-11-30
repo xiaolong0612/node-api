@@ -29,7 +29,31 @@ service.interceptors.request.use(
 
 // response 拦截器
 service.interceptors.response.use(
-  response => response,
+  // response => response,
+  response => {
+    const res = response.data
+    if (res.code !== 200) {
+      if (res.code === -1) {
+        Message({
+          message: res.message,
+          type: 'error',
+          duration: 5 * 1000
+        })
+      } else if (res.code === 50014) {
+        Message.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+          confirmButtonText: '重新登录',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          store.dispatch('FedLogOut').then(() => {
+            location.reload() // 为了重新实例化vue-router对象 避免bug
+          })
+        })
+      }
+      return Promise.reject('error')
+    }
+    return response
+  },
   /**
    * 下面的注释为通过在response里，自定义code来标示请求状态
    * 当code返回如下情况则说明权限有问题，登出并返回到登录页
