@@ -106,6 +106,7 @@ export function list(req, res){
         })
         for(var i in results[1]){
             results[1][i].birthday = parseTime(results[1][i].birthday, '{y}-{m}-{d}')
+            delete results[1][i].password
         }
         res.json({
             code: 200,
@@ -141,7 +142,7 @@ export function del(req, res){
             message: err,
         })
         res.json({
-            code: 0,
+            code: 200,
             success: true,
             message: '删除成功',
         })

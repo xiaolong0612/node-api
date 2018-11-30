@@ -94,9 +94,17 @@ module.exports = {
   },
   del: function (req, callback) {
   	const query = req.body;
-    console.log(query)
-  	const sqlStr = 'DELETE FROM USER_LIST WHERE id = '+query.id;
-  	sqlPool.connect(sqlStr, [], callback);
+    let ids = '?'
+    if (typeof query.ids !== 'string') {
+      for(var i=0; i<query.ids.length-1; i++){
+        ids+=',?'
+      }
+    } else {
+      query.ids = [query.ids]
+    }
+    console.log(query.ids)
+  	const sqlStr = 'DELETE FROM USER_LIST WHERE id in('+ ids +')';
+  	sqlPool.connect(sqlStr, query.ids, callback);
   },
   updata: function (req, callback) {
   	const query = req.body;

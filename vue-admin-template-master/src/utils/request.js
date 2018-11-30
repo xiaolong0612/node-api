@@ -8,8 +8,9 @@ const qs = require('qs')
 const service = axios.create({
   baseURL: process.env.BASE_API, // api 的 base_url
   timeout: 5000, // 请求超时时间
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   transformRequest: [function(data) {
-    return qs.stringify(data)
+    return qs.stringify(data, { indices: false })
   }]
 })
 // request拦截器
@@ -52,7 +53,7 @@ service.interceptors.response.use(
       }
       return Promise.reject('error')
     }
-    return response
+    return response.data
   },
   /**
    * 下面的注释为通过在response里，自定义code来标示请求状态

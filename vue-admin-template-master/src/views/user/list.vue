@@ -2,10 +2,10 @@
   <div class="app-container">
     <el-form :inline="true" :model="query" class="demo-form-inline">
       <el-form-item label="用户名称">
-        <el-input v-model="query.user_name" placeholder="用户名称"/>
+        <el-input v-model="query.user_name" clearable placeholder="用户名称"/>
       </el-form-item>
       <el-form-item label="年龄">
-        <el-input v-model="query.age" placeholder="年龄" />
+        <el-input v-model="query.age" clearable placeholder="年龄" />
       </el-form-item>
       <el-form-item label="性别">
         <el-select v-model="query.sex" clearable placeholder="性别">
@@ -22,13 +22,23 @@
           placeholder="选择日期" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="getList">查询</el-button>
+        <el-button :loading="loading.table" type="primary" @click="getList">查询</el-button>
       </el-form-item>
       <el-form-item class="fr">
-        <el-button type="primary" @click="dialogNewUser = true">新增</el-button>
+        <el-button type="primary" @click="dialog.newUser = true">新增</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="tableData" style="width: 100%">
+    <el-table v-loading="loading.table" :data="tableData" style="width:100%">
+      <el-table-column
+        type="selection"
+        width="55"/>
+      <el-table-column
+        label="帐号"
+        width="180">
+        <template slot-scope="scope">
+          <span>{{ scope.row.account }}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         label="用户名称"
         width="180">
@@ -76,14 +86,27 @@
         label="操作">
         <template slot-scope="scope">
           <el-button v-show="!scope.row.isEdit" type="text" size="small" @click="edit(scope.row)">编辑</el-button>
-          <el-button v-show="!scope.row.isEdit" type="text" size="small" style="color:#F56C6C" @click="del(scope.row)">删除</el-button>
+          <el-button v-show="!scope.row.isEdit" type="text" size="small" style="color:#F56C6C" @click="delItem(scope.row)">删除</el-button>
           <el-button v-show="scope.row.isEdit" type="success" icon="el-icon-check" circle @click="updata(scope.row)" />
-          <el-button v-show="scope.row.isEdit" type="info" icon="el-icon-close" circle @click="close(scope.row)" />
+          <el-button v-show="scope.row.isEdit" type="info" icon="el-icon-close" circle @click="closeEdit(scope.row)" />
         </template>
       </el-table-column>
     </el-table>
+    <div v-show="!loading.table">
+      <el-pagination
+        :total="total"
+        :current-page="query.pageNo"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="query.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        class="fr"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange" />
+
+      <el-button type="danger" icon="el-icon-delete" style="margin-top:9px" @click="showDialogDelUser()"/>
+    </div>
     <el-dialog
-      :visible.sync="dialogNewUser"
+      :visible.sync="dialog.newUser"
       title="新增用户"
       width="30%">
       <el-form ref="newUser" :model="newUser" :rules="rules_for_newUser" label-width="80px">
@@ -121,8 +144,23 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogNewUser = false">取 消</el-button>
-        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button @click="dialog.newUser = false">取 消</el-button>
+        <el-button :loading="loading.submit" type="primary" @click="submit">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog
+      :visible.sync="dialog.delUser"
+      title="删除用户"
+      width="30%">
+      <div>
+        确定要删除
+        <span v-for="(item, index) in multipleSelection" :key="item.id" style="color:#F56C6C">{{ item.account }}<font v-if="index !== multipleSelection.length - 1">,</font></span>!
+        <p><span style="color:#F56C6C">{{ multipleSelection.length }}</span>个账号吗？</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialog.delUser = false">取 消</el-button>
+        <el-button :loading="loading.del" type="primary" @click="delSelect">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -167,6 +205,7 @@ export default {
         user_name: '',
         birthday: ''
       },
+      total: 0,
       newUser: {
         account: 'xiaolong',
         password: '123456',
@@ -201,9 +240,18 @@ export default {
           { required: true, message: '生日不能为空', trigger: 'blur' }
         ]
       },
-      tempItem: {},
+      tempItem: [],
       tableData: [],
-      dialogNewUser: false
+      loading: {
+        table: false,
+        submit: false,
+        del: false
+      },
+      multipleSelection: [],
+      dialog: {
+        newUser: false,
+        delUser: false
+      }
     }
   },
 
@@ -212,40 +260,67 @@ export default {
   },
 
   methods: {
+    // 搜索
+    search() {
+      this.query.pageNo = 1
+      this.getList()
+    },
+    // 获取列表
     getList() {
       var _this = this
-      console.log(_this.query)
+      // 加载效果start
+      _this.loading.table = true
+      // 清空数据
+      _this.tableData = []
       getList(_this.query).then(rs => {
-        rs.data.data.map(function(v, k) {
+        this.total = rs.total
+        rs.data.map(function(v, k) {
+          // 添加编辑控制
           _this.$set(v, 'isEdit', false)
         })
-        _this.tableData = rs.data.data
+        _this.tableData = rs.data
+        _this.loading.table = false
       })
     },
     edit(item) {
-      this.tempItem = JSON.parse(JSON.stringify(item))
+      // 缓存打开编辑的列
+      this.tempItem[this.tempItem.length] = JSON.parse(JSON.stringify(item))
       this.$set(item, 'isEdit', true)
     },
-    del(item) {
+    closeEdit(item) {
+      // 还原编辑之前的内容
+      let getitem = {}
+      // 获取编辑之前的内容
+      for (const i in this.tempItem) {
+        if (this.tempItem[i].id === item.id) {
+          getitem = this.tempItem[i]
+          break
+        }
+      }
+      // 还原信息
+      for (const i in getitem) {
+        item[i] = getitem[i]
+      }
+    },
+    // 修改用户信息
+    updata(item) {
+      updata(item).then(rs => {
+        if (rs.success) {
+          this.$message.success(rs.message)
+        }
+        this.getList()
+      })
+      // 关闭编辑
+      this.$set(item, 'isEdit', false)
+    },
+    // 单个删除
+    delItem(item) {
       this.$confirm('此操作将永久删除' + item.user_name + ', 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        del({ id: item.id }).then(rs => {
-          if (rs.data.success) {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-            this.getList()
-          } else {
-            this.$message({
-              type: 'info',
-              message: '删除失败，请刷新重试'
-            })
-          }
-        })
+        this.delFun([item.id])
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -253,34 +328,63 @@ export default {
         })
       })
     },
-    updata(item) {
-      updata(item).then(rs => {
-        if (rs.data.success) {
-          this.$message.success(rs.data.message)
-        }
-        this.getList()
-      })
-      this.$set(item, 'isEdit', false)
+    // 删除多个弹窗
+    showDialogDelUser() {
+      if (this.multipleSelection.length === 0) this.$message.info('请先选择')
+      else this.dialog.delUser = true
     },
-    close(item) {
-      var _this = this
-      for (var i in this.tempItem) {
-        item[i] = _this.tempItem[i]
+    // 删除选中的项
+    delSelect() {
+      const delArr = []
+      for (var i in this.multipleSelection) {
+        delArr.push(this.multipleSelection[i].id)
       }
+      this.delFun(delArr)
     },
+    // 删除请求
+    delFun(delArr) {
+      del({ ids: delArr }).then(rs => {
+        if (rs.success) {
+          this.$message.success('删除成功!')
+          this.dialog.delUser = false
+          // 更新列表
+          this.getList()
+        } else {
+          this.$message.info('删除失败，请刷新重试')
+        }
+      })
+    },
+    // 新增用户
     submit() {
+      // 表达验证
       this.$refs['newUser'].validate((valid) => {
         if (valid) {
+          this.loading.submit = true
           register(this.newUser).then(rs => {
             if (rs.success) {
-              this.$message.success(rs.data.message)
+              this.$message.success(rs.message)
+              this.dialog.newUser = false
+              this.loading.submit = false
+              // 更新列表
+              this.getList()
             }
           })
         } else {
           console.log('error submit!!')
+          this.loading.submit = false
           return false
         }
       })
+    },
+    // 页码
+    handleCurrentChange(val) {
+      this.query.pageNo = val
+      this.getList()
+    },
+    // 页数
+    handleSizeChange(val) {
+      this.query.pageSize = val
+      this.getList()
     }
   }
 }
