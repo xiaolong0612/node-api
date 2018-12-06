@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+import { Message, MessageBox } from 'element-ui'
 import store from '../store'
-import { getToken } from '@/utils/auth'
 const qs = require('qs')
 
 // 创建axios实例
@@ -17,7 +16,7 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     if (store.getters.token) {
-      config.headers.common['Authorization'] = getToken()// 让每个请求携带自定义token 请根据实际情况自行修改
+      config.headers.common['Authorization'] = store.getters.token// 让每个请求携带自定义token 请根据实际情况自行修改
     }
     return config
   },
@@ -41,7 +40,7 @@ service.interceptors.response.use(
           duration: 5 * 1000
         })
       } else if (res.code === 50014) {
-        Message.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+        MessageBox.confirm('您的登陆已过期，可以取消继续留在该页面，或者重新登录', '确定登出', {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
           type: 'warning'

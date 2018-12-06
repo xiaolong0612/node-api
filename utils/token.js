@@ -16,11 +16,15 @@ module.exports = {
 	setToken: function (userinfo) {
 		return jwt.sign(userinfo, privateKey, { expiresIn: 60 * 60 * 24 })
 	},
-	getToken: function (token, callback) {
+	getToken: function (token, res, callback) {
 		jwt.verify(token, privateKey, (error, decoded) => {
 		  if (error) {
 		    console.log(error.message)
-		    if(typeof callback == 'function') callback({success:false})
+		    res.json({
+            code: 50014,
+            success: false,
+            message: '请重新登陆',
+        })
 		    return
 		  }
 		  if(typeof callback == 'function') callback({user: decoded,success:true})

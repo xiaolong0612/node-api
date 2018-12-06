@@ -50,7 +50,7 @@ const user = {
             reject('getInfo: roles must be a non-null array !')
           }
           // 更新token预防使用中重新登陆
-          if (response.data.token !== '') {
+          if (response.token !== '') {
             setToken(data.token)
           }
           commit('SET_NAME', data.user_name)

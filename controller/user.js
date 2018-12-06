@@ -55,7 +55,7 @@ export function logout(req, res){
 }
 
 export function getUserInfo(req, res){
-    token.getToken(req.headers.authorization, function(rs){
+    token.getToken(req.headers.authorization, res, function(rs){
         if(rs.success){
             let begintime = new Date(rs.user.time);
             let nowtime = new Date()
@@ -87,79 +87,83 @@ export function getUserInfo(req, res){
                 })   
             })
             
-        }else{
-            res.json({
-                code: 50014,
-                success: false,
-                message: '请重新登陆',
-            })
         }
     })
 }
 export function list(req, res){
-    user.list(req, function(err, results){
-        var data = req.body;
-        if (err) return res.json({
-            code: -1,
-            success: false,
-            message: '数据不存在',
-        })
-        for(var i in results[1]){
-            results[1][i].birthday = parseTime(results[1][i].birthday, '{y}-{m}-{d}')
-            delete results[1][i].password
+    token.getToken(req.headers.authorization, res, function(rs){
+        if(rs.success){
+            user.list(req, function(err, results){
+                var data = req.body;
+                if (err) return res.json({
+                    code: -1,
+                    success: false,
+                    message: '数据不存在',
+                })
+                for(var i in results[1]){
+                    results[1][i].birthday = parseTime(results[1][i].birthday, '{y}-{m}-{d}')
+                    delete results[1][i].password
+                }
+                res.json({
+                    code: 200,
+                    success: true,
+                    pageNo: data.pageNo,
+                    pageSize: data.pageSize,
+                    total: results[0][0]['COUNT(*)'],
+                    data: results[1],
+                })
+            })
         }
-        res.json({
-            code: 200,
-            success: true,
-            pageNo: data.pageNo,
-            pageSize: data.pageSize,
-            total: results[0][0]['COUNT(*)'],
-            data: results[1],
-        })
     })
 }
 
 export function add(req, res){
-    user.add(req, function(err, results){
-        if (err) return res.json({
-            err_code: -1,
-            success: false,
-            message: err,
-        })
-        res.json({
-            err_code: 200,
-            success: true,
-            message: '添加成功',
+    token.getToken(req.headers.authorization, res, function(rs){
+        user.add(req, function(err, results){
+            if (err) return res.json({
+                err_code: -1,
+                success: false,
+                message: err,
+            })
+            res.json({
+                err_code: 200,
+                success: true,
+                message: '添加成功',
+            })
         })
     })
 }
 
 export function del(req, res){
-    user.del(req, function(err, results){
-        if (err) return res.json({
-            code: -1,
-            success: false,
-            message: err,
-        })
-        res.json({
-            code: 200,
-            success: true,
-            message: '删除成功',
+    token.getToken(req.headers.authorization, res, function(rs){
+        user.del(req, function(err, results){
+            if (err) return res.json({
+                code: -1,
+                success: false,
+                message: err,
+            })
+            res.json({
+                code: 200,
+                success: true,
+                message: '删除成功',
+            })
         })
     })
 }
 
 export function updata(req, res){
-    user.updata(req, function(err, results){
-        if (err) return res.json({
-            code: -1,
-            success: false,
-            message: err,
-        })
-        res.json({
-            code: 200,
-            success: true,
-            message: '编辑成功',
+    token.getToken(req.headers.authorization, res, function(rs){
+        user.updata(req, function(err, results){
+            if (err) return res.json({
+                code: -1,
+                success: false,
+                message: err,
+            })
+            res.json({
+                code: 200,
+                success: true,
+                message: '编辑成功',
+            })
         })
     })
 }

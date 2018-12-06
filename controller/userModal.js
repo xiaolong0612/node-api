@@ -33,8 +33,6 @@ module.exports = {
 
         query.password = setMd5(query.password);
         var user = [query.account, query.password, query.user_name, query.sex || null, query.age || null, query.birthday || null, query.roles || 'admin'];
-        console.log(query)
-        console.log(user)
         sqlPool.connect(sqlStr, user, callback);
       }
     });
@@ -57,32 +55,52 @@ module.exports = {
   },
   list: function (req, callback) {
   	const query = req.body;
-    let sqlStr = 'SELECT COUNT(*) FROM USER_LIST;';
-
-    sqlStr += "SELECT * FROM USER_LIST where 1=1";
     let user = [];
+    let sqlStr = 'SELECT COUNT(*) FROM USER_LIST';
+
+    if(query.user_name != '' || query.sex != '' || query.age != '' || query.birthday != ''){
+      sqlStr += ' where 1=1'
+      if(query.user_name && query.user_name != ''){
+        query.user_name = "%"+query.user_name+"%";
+        sqlStr += " and user_name like ?";
+        user.push(query.user_name);
+      }
+      if(query.sex && query.sex != ''){
+        sqlStr += " and sex = ?";
+        user.push(query.sex);
+      }
+      if(query.age && query.age != ''){
+        sqlStr += " and age = ?";
+        user.push(query.age);
+      }
+      if(query.birthday && query.birthday != ''){
+        sqlStr += " and birthday = ?";
+        user.push(query.birthday);
+      }
+      sqlStr+=';';
+    }else{
+      sqlStr+=';'
+    }
+    sqlStr += "SELECT * FROM USER_LIST where 1=1";
     if(query.user_name && query.user_name != ''){
       query.user_name = "%"+query.user_name+"%";
       sqlStr += " and user_name like ?";
       user.push(query.user_name);
     }
     if(query.sex && query.sex != ''){
-    	query.sex = "%"+query.sex+"%";
-      sqlStr += " and sex like ?";
+      sqlStr += " and sex = ?";
       user.push(query.sex);
     }
     if(query.age && query.age != ''){
-    	query.age = "%"+query.age+"%";
-      sqlStr += " and age like ?";
+      sqlStr += " and age = ?";
       user.push(query.age);
     }
     if(query.birthday && query.birthday != ''){
-    	query.birthday = "%"+query.birthday+"%";
-      sqlStr += " and birthday like ?";
+      sqlStr += " and birthday = ?";
       user.push(query.birthday);
     }
     sqlStr += ' limit ?,?';
-    user.push((Number(query.pageNo-1) || 0), (Number(query.pageSize) || 10))
+    user.push((Number(query.pageNo-1)*Number(query.pageSize) || 0), (Number(query.pageSize) || 10))
     sqlPool.connect(sqlStr, user, callback);
   },
   add: function (req, callback) {
@@ -102,7 +120,6 @@ module.exports = {
     } else {
       query.ids = [query.ids]
     }
-    console.log(query.ids)
   	const sqlStr = 'DELETE FROM USER_LIST WHERE id in('+ ids +')';
   	sqlPool.connect(sqlStr, query.ids, callback);
   },

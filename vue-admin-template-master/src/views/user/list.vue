@@ -22,7 +22,7 @@
           placeholder="选择日期" />
       </el-form-item>
       <el-form-item>
-        <el-button :loading="loading.table" type="primary" @click="getList">查询</el-button>
+        <el-button :loading="loading.table" type="primary" @click="search">查询</el-button>
       </el-form-item>
       <el-form-item class="fr">
         <el-button type="primary" @click="dialog.newUser = true">新增</el-button>
@@ -111,22 +111,22 @@
       width="30%">
       <el-form ref="newUser" :model="newUser" :rules="rules_for_newUser" label-width="80px">
         <el-form-item label="账号" prop="account">
-          <el-input v-model="newUser.account" />
+          <el-input v-model="newUser.account" clearable/>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="newUser.password" type="password"/>
+          <el-input v-model="newUser.password" type="password" clearable/>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input v-model="newUser.checkPass" type="password"/>
+          <el-input v-model="newUser.checkPass" type="password" clearable/>
         </el-form-item>
         <el-form-item label="用户名称" prop="user_name">
-          <el-input v-model="newUser.user_name" />
+          <el-input v-model="newUser.user_name" clearable/>
         </el-form-item>
         <el-form-item label="年龄" prop="age">
-          <el-input v-model="newUser.age" />
+          <el-input v-model.number="newUser.age" clearable/>
         </el-form-item>
         <el-form-item label="性别" prop="sex">
-          <el-select v-model="newUser.sex" placeholder="请选择" class="el-col-24">
+          <el-select v-model="newUser.sex" placeholder="请选择" class="el-col-24" clearable>
             <el-option
               v-for="item in sexOptions"
               :key="item.value"
@@ -138,6 +138,7 @@
           <el-date-picker
             v-model="newUser.birthday"
             type="date"
+            clearable
             value-format="yyyy-MM-dd"
             format="yyyy-MM-dd"
             placeholder="选择日期" />
@@ -145,6 +146,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialog.newUser = false">取 消</el-button>
+        <el-button @click="resetForm('newUser')">重置</el-button>
         <el-button :loading="loading.submit" type="primary" @click="submit">确 定</el-button>
       </span>
     </el-dialog>
@@ -207,13 +209,13 @@ export default {
       },
       total: 0,
       newUser: {
-        account: 'xiaolong',
-        password: '123456',
-        checkPass: '123456',
-        user_name: 'xiaolongjun',
-        sex: '男',
-        age: '12',
-        birthday: '1997-06-12'
+        account: '',
+        password: '',
+        checkPass: '',
+        user_name: '',
+        sex: '',
+        age: '',
+        birthday: ''
       },
       rules_for_newUser: {
         account: [
@@ -234,7 +236,8 @@ export default {
           { required: true, message: '性别不能为空', trigger: 'blur' }
         ],
         age: [
-          { required: true, message: '年龄不能为空', trigger: 'blur' }
+          { required: true, message: '年龄不能为空', trigger: 'blur' },
+          { type: 'number', message: '年龄必须为数字值' }
         ],
         birthday: [
           { required: true, message: '生日不能为空', trigger: 'blur' }
@@ -268,17 +271,22 @@ export default {
     // 获取列表
     getList() {
       var _this = this
+      _this.total = 0
       // 加载效果start
       _this.loading.table = true
       // 清空数据
       _this.tableData = []
       getList(_this.query).then(rs => {
-        this.total = rs.total
-        rs.data.map(function(v, k) {
-          // 添加编辑控制
-          _this.$set(v, 'isEdit', false)
-        })
-        _this.tableData = rs.data
+        if (rs.success && rs.data.length !== 0) {
+          this.total = rs.total
+          rs.data.map(function(v, k) {
+            // 添加编辑控制
+            _this.$set(v, 'isEdit', false)
+          })
+          _this.tableData = rs.data
+        }
+        _this.loading.table = false
+      }).catch(rs => {
         _this.loading.table = false
       })
     },
@@ -385,6 +393,10 @@ export default {
     handleSizeChange(val) {
       this.query.pageSize = val
       this.getList()
+    },
+    // 表单重置
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
     }
   }
 }
