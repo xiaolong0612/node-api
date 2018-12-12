@@ -40,5 +40,11 @@ exports = module.exports = [
 		method: 'post',
     path: '/api/updatauser',
     impl: 'user.updata'
+	},
+	{
+		// 上传
+		method: 'post',
+    path: '/api/upfile',
+    impl: 'file.up'
 	}
 ];

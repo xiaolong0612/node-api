@@ -1,0 +1,1 @@
+exports.id=0,exports.modules={"../controller/file.js":function(e,o,s){"use strict";s.r(o),s.d(o,"up",function(){return c});new(s("ali-oss"))({region:"oss-cn-beijing",accessKeyId:"LTAIiG34CxtAl0Kp",accessKeySecret:"TCuePLFvCoSzWkKR4dWjyeBl7zYC2R"});function c(e,o){console.log(o.objects)}}};

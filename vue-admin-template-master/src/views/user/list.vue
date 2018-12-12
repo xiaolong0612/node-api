@@ -191,6 +191,15 @@ export default {
         callback()
       }
     }
+    var validateAge = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入年龄'))
+      } else if (value >= 200 || value <= 0) {
+        callback(new Error('我还没见过这么嚣张的人'))
+      } else {
+        callback()
+      }
+    }
     return {
       sexOptions: [
         {
@@ -236,8 +245,8 @@ export default {
           { required: true, message: '性别不能为空', trigger: 'blur' }
         ],
         age: [
-          { required: true, message: '年龄不能为空', trigger: 'blur' },
-          { type: 'number', message: '年龄必须为数字值' }
+          { type: 'number', message: '年龄必须为数字值' },
+          { validator: validateAge, trigger: 'blur', required: true }
         ],
         birthday: [
           { required: true, message: '生日不能为空', trigger: 'blur' }

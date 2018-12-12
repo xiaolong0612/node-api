@@ -8,6 +8,7 @@
     "prod": "npx rimraf dist && npx webpack --config learn/graphql/build/webpack.prod.js"
   },
   "dependencies": {
+    "ali-oss": "^6.0.2",
     "body-parser": "^1.18.3",
     "bytes": "^3.0.0",
     "content-disposition": "^0.5.2",

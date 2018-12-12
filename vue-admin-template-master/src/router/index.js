@@ -24,7 +24,6 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-
   {
     path: '/',
     component: Layout,
@@ -36,7 +35,6 @@ export const constantRouterMap = [
       component: () => import('@/views/dashboard/index')
     }]
   },
-
   {
     path: '/user',
     component: Layout,
@@ -45,11 +43,22 @@ export const constantRouterMap = [
         path: 'list',
         name: 'Form',
         component: () => import('@/views/user/list'),
-        meta: { title: '用户列表', icon: 'form' }
+        meta: { title: '用户列表', icon: 'user' }
       }
     ]
   },
-
+  {
+    path: '/file',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'File',
+        component: () => import('@/views/file/index'),
+        meta: { title: '文件上传', icon: 'tree' }
+      }
+    ]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ]
 
