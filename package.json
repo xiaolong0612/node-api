@@ -21,6 +21,7 @@
     "escape-html": "^1.0.3",
     "etag": "^1.8.1",
     "express": "^4.16.4",
+    "express-fileupload": "^1.0.0",
     "fresh": "^0.5.2",
     "fs": "^0.0.1-security",
     "http-errors": "^1.7.1",

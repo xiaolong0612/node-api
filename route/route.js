@@ -45,6 +45,6 @@ exports = module.exports = [
 		// 上传
 		method: 'post',
     path: '/api/upfile',
-    impl: 'file.up'
+    impl: 'file.upfile'
 	}
 ];

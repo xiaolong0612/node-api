@@ -1,5 +1,7 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const app = express();
+app.use(fileUpload());
 //解析表单的插件
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
